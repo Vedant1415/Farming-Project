@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI-Driven Precision Farming</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+    }
+    header {
+      background-color: #2e8b57;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    nav {
+      background-color: #3cb371;
+      padding: 10px;
+      text-align: center;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+    }
+    main {
+      padding: 20px;
+    }
+    .sensor-section, .recommendation-section {
+      background: #fff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    footer {
+      text-align: center;
+      background: #2e8b57;
+      color: white;
+      padding: 10px;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+    }
+    .data-box label {
+      display: block;
+      margin: 5px 0 2px;
+    }
+    .data-box input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+    .recommendation-output {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #2e8b57;
+    }
+    #auth-container {
+      max-width: 400px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    #auth-container input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+    }
+    #auth-container button {
+      width: 100%;
+      padding: 10px;
+      background-color: #2e8b57;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    #toggleForm {
+      margin-top: 10px;
+      text-align: center;
+      cursor: pointer;
+      color: #2e8b57;
+      text-decoration: underline;
+    }
+    .analysis-box {
+      background: #e8f5e9;
+      padding: 15px;
+      border-left: 5px solid #2e8b57;
+      margin-top: 15px;
+      line-height: 1.6;
+    }
+  </style>
+  <script>
+    function toggleForm() {
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      loginForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none';
+      registerForm.style.display = registerForm.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      if (email && password) {
+        document.getElementById('auth-container').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+      } else {
+        alert('Please enter valid credentials');
+      }
+    }
+
+    function handleRegister(event) {
+      event.preventDefault();
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) {
+        alert('Passwords do not match');
+        return;
+      }
+
+      if (email && password) {
+        alert('Registration successful. Please log in.');
+        toggleForm();
+      } else {
+        alert('Please fill out all fields');
+      }
+    }
+
+    function generateRecommendation() {
+      const crop = document.getElementById('cropName').value.trim().toLowerCase();
+      const ph = parseFloat(document.getElementById('ph').value);
+      const moisture = parseFloat(document.getElementById('moisture').value);
+      const temperature = parseFloat(document.getElementById('temperature').value);
+      const humidity = parseFloat(document.getElementById('humidity').value);
+
+      let result = `<div class="analysis-box"><strong>Analysis Summary:</strong><br/>`;
+
+      if (!crop || isNaN(ph) || isNaN(moisture) || isNaN(temperature) || isNaN(humidity)) {
+        document.getElementById("recommendationText").innerHTML = "⚠️ Please enter crop and all sensor values.";
+        return;
+      }
+
+      // Soil pH analysis
+      if (ph < 5.5) {
+        result += `- Soil is too acidic (pH: ${ph}). Add lime to increase pH.<br/>`;
+      } else if (ph >= 5.5 && ph <= 7.5) {
+        result += `- Soil pH (${ph}) is within optimal range for most crops.<br/>`;
+      } else {
+        result += `- Soil is alkaline (pH: ${ph}). Consider sulfur-based treatments.<br/>`;
+      }
+
+      // Moisture analysis
+      if (moisture < 20) {
+        result += `- Low moisture (${moisture}%). Recommend irrigation.<br/>`;
+      } else if (moisture >= 20 && moisture <= 60) {
+        result += `- Adequate moisture level (${moisture}%).<br/>`;
+      } else {
+        result += `- Excess moisture (${moisture}%). May cause root damage.<br/>`;
+      }
+
+      // Temperature analysis
+      if (temperature < 15) {
+        result += `- Temperature (${temperature}°C) is too low for most crops.<br/>`;
+      } else if (temperature >= 15 && temperature <= 30) {
+        result += `- Temperature is optimal (${temperature}°C).<br/>`;
+      } else {
+        result += `- High temperature (${temperature}°C). Use shade or mulch.<br/>`;
+      }
+
+      // Humidity analysis
+      if (humidity < 30) {
+        result += `- Low humidity (${humidity}%). Risk of water stress.<br/>`;
+      } else if (humidity >= 30 && humidity <= 70) {
+        result += `- Humidity is ideal (${humidity}%).<br/>`;
+      } else {
+        result += `- High humidity (${humidity}%). Risk of fungal infections.<br/>`;
+      }
+
+      // Evaluate user's crop input
+      result += `<br/><strong>Your Crop: ${crop.charAt(0).toUpperCase() + crop.slice(1)}</strong><br/>`;
+
+      const cropMatch = {
+        wheat: ph >= 6 && ph <= 7.5 && moisture >= 30 && temperature >= 20 && temperature <= 30 && humidity >= 40 && humidity <= 70,
+        rice: ph < 6 && moisture > 50 && temperature < 28,
+        corn: ph >= 6 && ph <= 7.5 && moisture > 30 && temperature >= 20 && humidity >= 40,
+        barley: ph > 7 && moisture < 40,
+        soybean: ph >= 6 && ph <= 7 && temperature >= 20 && humidity <= 70,
+        millet: ph > 7 && moisture < 30,
+      };
+
+      if (crop in cropMatch) {
+        if (cropMatch[crop]) {
+          result += `✅ Conditions are suitable for growing <strong>${crop}</strong>.<br/>`;
+        } else {
+          result += `⚠️ Current conditions are not ideal for <strong>${crop}</strong>.<br/>`;
+        }
+      } else {
+        result += `❓ Crop not found in the database. Please check the spelling or try a common crop.<br/>`;
+      }
+
+      result += `</div>`;
+
+      document.getElementById("recommendationText").innerHTML = result;
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <h1>AI-Driven Precision Farming</h1>
+    <p>Soil & Climate Analysis Dashboard</p>
+  </header>
+
+  <div id="auth-container">
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <h2>Login</h2>
+      <input type="email" id="loginEmail" placeholder="Email" required />
+      <input type="password" id="loginPassword" placeholder="Password" required />
+      <button type="submit">Login</button>
+      <div id="toggleForm" onclick="toggleForm()">Don't have an account? Register</div>
+    </form>
+
+    <form id="registerForm" onsubmit="handleRegister(event)" style="display: none;">
+      <h2>Register</h2>
+      <input type="email" id="regEmail" placeholder="Email" required />
+      <input type="password" id="regPassword" placeholder="Password" required />
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+      <button type="submit">Register</button>
+      <div id="toggleForm" onclick="toggleForm()">Already have an account? Login</div>
+    </form>
+  </div>
+
+  <div id="dashboard" style="display: none;">
+    <nav>
+      <a href="#sensors">Sensor Data</a>
+      <a href="#recommendations">Crop Recommendations</a>
+      <a href="#weather">Weather Analysis</a>
+    </nav>
+
+    <main>
+      <!-- NEW: Crop Entry Section First -->
+      <section id="crop-section" class="sensor-section">
+        <h2>Enter Your Crop Name</h2>
+        <div class="data-box">
+          <label for="cropName">Crop Name</label>
+          <input type="text" id="cropName" placeholder="e.g., wheat, rice, corn, millet" />
+        </div>
+      </section>
+
+      <!-- Sensor Input Section -->
+      <section id="sensors" class="sensor-section">
+        <h2>Live Sensor Input</h2>
+        <div class="data-box">
+          <label for="ph">Soil pH</label>
+          <input type="number" step="0.1" id="ph" placeholder="Enter pH value (3.5-9)" />
+          <label for="moisture">Moisture (%)</label>
+          <input type="number" step="0.1" id="moisture" placeholder="Enter moisture value" />
+          <label for="temperature">Temperature (°C)</label>
+          <input type="number" step="0.1" id="temperature" placeholder="Enter temperature" />
+          <label for="humidity">Humidity (%)</label>
+          <input type="number" step="0.1" id="humidity" placeholder="Enter humidity" />
+          <button onclick="generateRecommendation()">Get Recommendation</button>
+        </div>
+      </section>
+
+      <section id="recommendations" class="recommendation-section">
+        <h2>Crop Recommendations</h2>
+        <div id="recommendationText" class="recommendation-output">Awaiting input...</div>
+      </section>
+
+      <section id="weather" class="recommendation-section">
+        <h2>Weather Analysis</h2>
+        <p>Coming soon: Real-time weather integration for better insights.</p>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    &copy; 2025 AI Precision Farming | All Rights Reserved
+  </footer>
+</body>
+</html>
